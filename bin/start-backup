@@ -2,36 +2,82 @@
 FILENAME=""
 PATHNAME_BACKUP="/app/backups"
 PATH_SAVE=""
+BACKUP_SCHEDULE="${BACKUP_SCHEDULE:-10:00 20:00}"
 
-while true; do
+if [ -n "$BACKUP_TIMEZONE" ]; then
+  export TZ="$BACKUP_TIMEZONE"
+fi
+
+get_next_run_epoch() {
+  local now today tomorrow next candidate time
+
+  now=$(date +%s)
+  today=$(date +%F)
+  tomorrow=$(date -d "tomorrow" +%F)
+  next=""
+
+  for time in $BACKUP_SCHEDULE; do
+    candidate=$(date -d "$today $time:00" +%s 2>/dev/null)
+    if [ "$candidate" -gt "$now" ] && { [ -z "$next" ] || [ "$candidate" -lt "$next" ]; }; then
+      next="$candidate"
+    fi
+  done
+
+  if [ -z "$next" ]; then
+    for time in $BACKUP_SCHEDULE; do
+      candidate=$(date -d "$tomorrow $time:00" +%s 2>/dev/null)
+      if [ -z "$next" ] || [ "$candidate" -lt "$next" ]; then
+        next="$candidate"
+      fi
+    done
+  fi
+
+  echo "$next"
+}
+
+run_backup() {
   check-connection
 
-  if [ ! -z $PATH_SAVE ]; then
+  if [ -n "$PATH_SAVE" ] && [ -f "$PATH_SAVE" ]; then
     echo "removing files old"
-    rm $PATH_SAVE
+    rm "$PATH_SAVE"
     echo "removed"
   fi
 
   echo "starting backup"
   FILENAME=$(date +"%Y%m%d%H%M%S").sql
   PATH_SAVE="$PATHNAME_BACKUP/$FILENAME"
-  mysqldump -h $DB_HOSTNAME -u $DB_USERNAME -p$DB_PASSWORD $DB_NAME >$PATH_SAVE
+  mysqldump -h "$DB_HOSTNAME" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_NAME" >"$PATH_SAVE"
   echo "backup has finished successful like $FILENAME"
 
   echo "reducing size file to upload"
-  zip "$PATH_SAVE.zip" $PATH_SAVE
-  rm $PATH_SAVE
+  zip "$PATH_SAVE.zip" "$PATH_SAVE"
+  rm "$PATH_SAVE"
   PATH_SAVE="$PATH_SAVE.zip"
   echo "compresion completa"
 
   echo "uploading AWS S3"
-  pathfile=$PATH_SAVE upload-backup
+  pathfile="$PATH_SAVE" upload-backup
   echo "uploaded AWS S3"
 
   echo "Cleanup Backup on S3"
   update-s3-bucket
   echo "Cleanup complete"
+}
 
-  sleep $TIME_SLEEP
+while true; do
+  NEXT_RUN_EPOCH=$(get_next_run_epoch)
+  NOW_EPOCH=$(date +%s)
+  WAIT_SECONDS=$((NEXT_RUN_EPOCH - NOW_EPOCH))
+
+  if [ "$WAIT_SECONDS" -lt 0 ]; then
+    WAIT_SECONDS=0
+  fi
+
+  echo "next backup at $(date -d "@$NEXT_RUN_EPOCH" +"%Y-%m-%d %H:%M:%S %Z")"
+  echo "sleeping $WAIT_SECONDS seconds"
+  sleep "$WAIT_SECONDS"
+
+  run_backup
 done
 
