@@ -18,7 +18,8 @@
 
 ### For time
 
-- <b>TIME_SLEEP</b> is the time that machine wait to execute a backup again, this value is in seconds.
+- <b>BACKUP_SCHEDULE</b> is the list of times (24h format) when backups run each day, for example: <code>"10:00 20:00"</code>
+- <b>BACKUP_TIMEZONE</b> is optional and defines the timezone used by the schedule, for example: <code>UTC</code>
 
 ### Amazon Web Service
 

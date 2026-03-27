@@ -3,3 +3,4 @@ database/*.sql
 s3-backup/node_modules/
 backups/*.zip
 backups/*.sql
+.idea
