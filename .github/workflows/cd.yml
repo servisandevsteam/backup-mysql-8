@@ -28,9 +28,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      name: executing remote ssh commands using password
-      uses: appleboy/ssh-action@v1.0.0
-      with:
+      - name: executing remote ssh commands using password
+      - uses: appleboy/ssh-action@v1.0.0
+      - with:
         host: ${{ secrets.SERVISAN_HOST }}
         username: ${{ secrets.SERVISAN_USERNAME }}
         password: ${{ secrets.SERVISAN_PASSWORD }}
