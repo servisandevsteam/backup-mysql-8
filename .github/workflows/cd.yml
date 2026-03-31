@@ -29,30 +29,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: executing remote ssh commands using password
-      - uses: appleboy/ssh-action@v1.0.0
-      - with:
-        host: ${{ secrets.SERVISAN_HOST }}
-        username: ${{ secrets.SERVISAN_USERNAME }}
-        password: ${{ secrets.SERVISAN_PASSWORD }}
-        port: ${{ secrets.SERVISAN_PORT }}
-        script: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_USER_TOKEN }}
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVISAN_HOST }}
+          username: ${{ secrets.SERVISAN_USERNAME }}
+          password: ${{ secrets.SERVISAN_PASSWORD }}
+          port: ${{ secrets.SERVISAN_PORT }}
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_USER_TOKEN }}
 
-          CONTAINER=backup-servisan \
-          TAG=${{ github.ref_name }} \
-          IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} \
-          /app/create-containerv2 \
-            --restart always \
-            --network servisan-network \
-            -e DB_NAME="${{ secrets.DB_NAME }}" \
-            -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-            -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            -e DB_HOSTNAME="servisan_db" \
-            -e DB_PORT="${{ secrets.DB_PORT }}" \
-            -e TIME_SLEEP="${{ secrets.TIME_SLEEP }}" \
-            -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
-            -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
-            -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" \
-            -e AWS_BUCKET="${{ secrets.AWS_BUCKET }}" \
-            -e AWS_PREFIX="${{ secrets.AWS_PREFIX }}" \
-            -e EXPIRATE_IN_MONTHS="${{ secrets.EXPIRATE_IN_MONTHS }}" \
+            CONTAINER=backup-servisan \
+            TAG=${{ github.ref_name }} \
+            IMAGE=${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} \
+            /app/create-containerv2 \
+              --restart always \
+              --network servisan-network \
+              -e DB_NAME="${{ secrets.DB_NAME }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e DB_HOSTNAME="servisan_db" \
+              -e DB_PORT="${{ secrets.DB_PORT }}" \
+              -e TIME_SLEEP="${{ secrets.TIME_SLEEP }}" \
+              -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+              -e AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+              -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" \
+              -e AWS_BUCKET="${{ secrets.AWS_BUCKET }}" \
+              -e AWS_PREFIX="${{ secrets.AWS_PREFIX }}" \
+              -e EXPIRATE_IN_MONTHS="${{ secrets.EXPIRATE_IN_MONTHS }}" \
