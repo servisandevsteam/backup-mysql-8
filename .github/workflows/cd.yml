@@ -47,7 +47,7 @@ jobs:
             -e DB_NAME="${{ secrets.DB_NAME }}" \
             -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
             -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-            -e DB_HOSTNAME="${{ secrets.DB_HOSTNAME }}" \
+            -e DB_HOSTNAME="servisan_db" \
             -e DB_PORT="${{ secrets.DB_PORT }}" \
             -e TIME_SLEEP="${{ secrets.TIME_SLEEP }}" \
             -e AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
