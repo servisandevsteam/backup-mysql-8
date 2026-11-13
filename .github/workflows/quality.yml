@@ -22,7 +22,7 @@ jobs:
 
       - name: Upload Shellyzer report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: shellyzer-report
           path: shellyzer-report.json
