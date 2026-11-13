@@ -1,20 +1,20 @@
 #!/bin/bash
 
 while true; do
-    # Ejecutar telnet y capturar la salida
-    A=$(echo | telnet $DB_HOSTNAME $DB_PORT 2>&1)
-    
-    # Buscar la palabra "Connected" en la salida
-    B=$(echo "$A" | grep "Connected" 2>/dev/null)
-    
-    # Verificar si la conexión fue exitosa
-    if [ -z "$B" ]; then  
-        echo -e "Intentando conectar a $DB_HOSTNAME en el puerto $DB_PORT...\n"
-    else 
-        echo -e "Conexión exitosa a $DB_HOSTNAME en el puerto $DB_PORT\n"
-        break  # Salir del bucle si la conexión es exitosa
-    fi
+  # Ejecutar telnet y capturar la salida
+  A=$(echo | telnet "$DB_HOSTNAME" "$DB_PORT" 2>&1)
 
-    # Esperar unos segundos antes de reintentar
-    sleep 5
+  # Buscar la palabra "Connected" en la salida
+  B=$(echo "$A" | grep "Connected" 2>/dev/null)
+
+  # Verificar si la conexión fue exitosa
+  if [ "$B" = "" ]; then
+    echo -e "Intentando conectar a $DB_HOSTNAME en el puerto $DB_PORT...\n"
+  else
+    echo -e "Conexión exitosa a $DB_HOSTNAME en el puerto $DB_PORT\n"
+    break # Salir del bucle si la conexión es exitosa
+  fi
+
+  # Esperar unos segundos antes de reintentar
+  sleep 5
 done

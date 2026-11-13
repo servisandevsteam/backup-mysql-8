@@ -1,0 +1,12 @@
+name: QUALITY GATES
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  quality:
+    uses: ./.github/workflows/quality.yml
+
+  js-security:
+    uses: ./.github/workflows/js-security.yml

@@ -1,8 +1,10 @@
 #!/bin/bash
 
-if [ -z $AWS_PREFIX ]; then
-  aws s3 cp $pathfile s3://$AWS_BUCKET
+pathfile="${pathfile:-}"
+
+if [ "$AWS_PREFIX" = "" ]; then
+  aws s3 cp "$pathfile" "s3://$AWS_BUCKET"
 else
-  aws s3 cp $pathfile "s3://${AWS_BUCKET}/${AWS_PREFIX}/"
+  aws s3 cp "$pathfile" "s3://${AWS_BUCKET}/${AWS_PREFIX}/"
 fi
 

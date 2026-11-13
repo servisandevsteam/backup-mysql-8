@@ -1,0 +1,7 @@
+# Shuck comparte parser, reglas y dialecto entre LSP y CLI.
+# Los scripts de bin/ no tienen extensión: se declaran como bash.
+[check]
+embedded = true
+
+[per-file-shell]
+"bin/*" = "bash"
