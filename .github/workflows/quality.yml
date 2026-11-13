@@ -1,0 +1,46 @@
+name: SHELLYZER
+
+on:
+  workflow_call:
+
+jobs:
+  shellyzer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Shellyzer
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/automatesecurity/shellyzer/2c93cec49d26358f1a5e7363d6e9b5b7bd6ba2b3/shellyzer.py" -o /tmp/shellyzer.py
+          mkdir -p /tmp/shellyzer-src
+          for script in bin/*; do
+            cp "$script" "/tmp/shellyzer-src/$(basename "$script").sh"
+          done
+          python3 /tmp/shellyzer.py /tmp/shellyzer-src \
+            --logfile /tmp/shellyzer.log \
+            --json-report shellyzer-report.json
+
+      - name: Upload Shellyzer report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shellyzer-report
+          path: shellyzer-report.json
+          if-no-files-found: ignore
+
+      - name: Enforce 200-line limit
+        run: |
+          failed=0
+          git ls-files > /tmp/tracked-files
+          while IFS= read -r file; do
+            case "$file" in
+              *package-lock.json|*pnpm-lock.yaml|*yarn.lock) continue ;;
+            esac
+            [ -f "$file" ] || continue
+            lines=$(wc -l < "$file")
+            if [ "$lines" -gt 200 ]; then
+              echo "::error file=$file::$file tiene $lines lineas (maximo 200)"
+              failed=1
+            fi
+          done < /tmp/tracked-files
+          exit "$failed"

@@ -6,21 +6,21 @@ PATH_SAVE=""
 while true; do
   check-connection
 
-  if [ ! -z $PATH_SAVE ]; then
+  if [ "$PATH_SAVE" != "" ]; then
     echo "removing files old"
-    rm $PATH_SAVE
+    rm "$PATH_SAVE"
     echo "removed"
   fi
 
   echo "starting backup"
   FILENAME=$(date +"%Y%m%d%H%M%S").sql
   PATH_SAVE="$PATHNAME_BACKUP/$FILENAME"
-  mysqldump -h $DB_HOSTNAME -u $DB_USERNAME -p$DB_PASSWORD $DB_NAME >$PATH_SAVE
+  mysqldump -h "$DB_HOSTNAME" -u "$DB_USERNAME" -p"$DB_PASSWORD" "$DB_NAME" >"$PATH_SAVE"
   echo "backup has finished successful like $FILENAME"
 
   echo "reducing size file to upload"
-  zip "$PATH_SAVE.zip" $PATH_SAVE
-  rm $PATH_SAVE
+  zip "$PATH_SAVE.zip" "$PATH_SAVE"
+  rm "$PATH_SAVE"
   PATH_SAVE="$PATH_SAVE.zip"
   echo "compresion completa"
 
@@ -32,6 +32,6 @@ while true; do
   update-s3-bucket
   echo "Cleanup complete"
 
-  sleep $TIME_SLEEP
+  sleep "$TIME_SLEEP"
 done
 
