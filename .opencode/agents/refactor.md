@@ -39,7 +39,8 @@ shellcheck --severity=warning bin/*
 ```
 
 Si tocaste `bin/`, ejecuta también Shellyzer con el procedimiento de `AGENTS.md`
-(requiere copiar los scripts a `*.sh`).
+(requiere copiar los scripts a `*.sh`). Si tocaste `s3-backup/`, ejecuta
+`npm --prefix s3-backup audit --omit=dev`.
 
 Y valida que el diff no cambie contratos: revisa llamadores con `grep` antes de
 tocar una variable o comando compartido. Informa el diff aplicado, las líneas

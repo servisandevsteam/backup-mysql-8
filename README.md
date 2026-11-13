@@ -29,8 +29,8 @@ El ciclo se repite cada `TIME_SLEEP` segundos y no termina por sí solo.
 ## Requisitos
 
 - Docker con Docker Compose.
-- Para validaciones locales: `bash`, `shellcheck`, `shellharden`, `shuck` y
-  `python3`.
+- Para validaciones locales: `bash`, `shellcheck`, `shellharden`, `shuck`,
+  `python3` y `npm`.
 
 Instalación de las herramientas de análisis:
 
@@ -105,7 +105,9 @@ Herramientas acordadas:
 | LSP | `shuck` | `shuck server`; configurado en `opencode.json`. |
 | DAP | `bash-debug-adapter` (bashdb) | Depuración desde el editor; no se configura en `opencode.json`. |
 | Linter / formatter | `shellharden` | `--replace` para aplicar, `--check` para verificar. |
-| Verificación de vulnerabilidades | `shellcheck` | `--severity=warning`. |
+| Verificación de vulnerabilidades shell | `shellcheck` | `--severity=warning`. |
+| Verificación de vulnerabilidades JS | `npm audit` | `npm --prefix s3-backup audit --omit=dev`. |
+| Dependencias JS | `osv-scanner` | `osv-scanner scan -L s3-backup/package-lock.json`. |
 | Análisis estático adicional | `shellyzer` | Solo analiza archivos `*.sh`. |
 
 Comandos de verificación antes de abrir un PR:
@@ -116,10 +118,25 @@ shellharden --check bin/*
 shellcheck --severity=warning bin/*
 ```
 
-Estas validaciones son para el agente y el entorno local. El CI no ejecuta
-`shuck`, `shellharden` ni `shellcheck`: solo pasa Shellyzer y el límite de 200
-líneas. Shellyzer necesita extensión `.sh`, así que el pipeline copia `bin/*` a
-un directorio temporal antes de analizarlo.
+Estas validaciones son para el agente y el entorno local. El CI solo ejecuta
+Shellyzer y OSV-Scanner. Shellyzer necesita extensión `.sh`, así que el pipeline
+copia `bin/*` a un directorio temporal antes de analizarlo.
+
+### Seguridad de dependencias JavaScript
+
+```bash
+npm --prefix s3-backup audit --omit=dev
+osv-scanner scan -L s3-backup/package-lock.json
+```
+
+`npm audit` muestra 3 vulnerabilidades conocidas: `aws-sdk` v2 y su `uuid`
+transitivo, más `moment@2.30.1`. **No uses `npm audit fix --force`**: intenta
+bajar a `aws-sdk@1.18.0`. La solución es migrar a `@aws-sdk/client-s3` v3 y
+actualizar `moment` a `2.31.0`.
+
+`osv-scanner` se ejecuta en CI y usa `s3-backup/osv-scanner.toml` para ignorar
+esas 3 excepciones hasta el **2027-01-31**. Pasada esa fecha el pipeline falla
+para forzar la migración; no extiendas el plazo sin resolver la deuda.
 
 Reglas de código:
 
@@ -145,12 +162,14 @@ Las definiciones viven en `.opencode/agents/` y las reglas compartidas en
 
 ## CI/CD
 
-- `.github/workflows/ci.yml` ejecuta la calidad en cada pull request.
+- `.github/workflows/ci.yml` ejecuta ambos workflows en cada pull request.
 - `.github/workflows/quality.yml` contiene los pasos reutilizables: Shellyzer y
   límite de 200 líneas.
+- `.github/workflows/js-security.yml` ejecuta OSV-Scanner sobre
+  `s3-backup/package-lock.json`.
 - `.github/workflows/cd.yml` corre en push a `main` y `feature/cd`: primero
-  exige Shellyzer, luego construye y publica la imagen en Docker Hub y recrea el
-  contenedor remoto `backup-servisan` por SSH.
+  exige Shellyzer y OSV-Scanner, luego construye y publica la imagen en Docker
+  Hub y recrea el contenedor remoto `backup-servisan` por SSH.
 
 No existe suite de tests. La verificación funcional es construir la imagen y
 correr un ciclo contra el MySQL de Compose.

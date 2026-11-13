@@ -41,6 +41,7 @@ Ejecuta y corrige hasta que todos pasen:
 shuck check .
 shellharden --check bin/*
 shellcheck --severity=warning bin/*
+npm --prefix s3-backup audit --omit=dev
 ```
 
 Además ejecuta Shellyzer sobre una copia con extensión `.sh` (solo analiza

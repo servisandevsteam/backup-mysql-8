@@ -1,0 +1,16 @@
+# Deuda técnica conocida del lockfile de s3-backup.
+# Estas excepciones expiran para forzar la migración antes de 2027-01-31.
+[[IgnoredVulns]]
+id = "GHSA-j965-2qgj-vjmq"
+effectiveUntil = 2027-01-31
+reason = "aws-sdk v2 EOL: migrar a @aws-sdk/client-s3"
+
+[[IgnoredVulns]]
+id = "GHSA-w5hq-g745-h8pq"
+effectiveUntil = 2027-01-31
+reason = "uuid 8 transitivo de aws-sdk v2: se resuelve con la migración"
+
+[[IgnoredVulns]]
+id = "GHSA-4p3w-j4w9-5jqw"
+effectiveUntil = 2027-01-31
+reason = "moment 2.30.1: actualizar a 2.31.0 o reemplazar"

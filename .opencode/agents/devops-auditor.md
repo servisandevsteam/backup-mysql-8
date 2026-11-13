@@ -30,6 +30,12 @@ permissions:
     resource: "shuck check *"
     effect: allow
   - action: shell
+    resource: "npm --prefix s3-backup audit*"
+    effect: allow
+  - action: shell
+    resource: "osv-scanner *"
+    effect: allow
+  - action: shell
     resource: "python3 /tmp/shellyzer.py *"
     effect: allow
   - action: shell
@@ -59,6 +65,8 @@ Busca, como mínimo:
 shellcheck --severity=warning bin/*
 shellharden --check bin/*
 shuck check .
+npm --prefix s3-backup audit --omit=dev
+osv-scanner scan -L s3-backup/package-lock.json
 ```
 
 Para Shellyzer, el pipeline lo ejecuta sobre copias `*.sh`. Puedes replicarlo en

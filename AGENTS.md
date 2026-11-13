@@ -50,10 +50,13 @@ backups antiguos. No hay suite de tests ni linter integrado en la imagen.
 | LSP | `shuck` | `shuck server` (configurado en `opencode.json`) |
 | DAP | `bash-debug-adapter` | debug del editor con bashdb; requiere el layout `/app` |
 | Linter/formatter | `shellharden` | `shellharden --replace <file>` / `--check` |
-| Vulnerabilidades | `shellcheck` | `shellcheck --severity=warning bin/*` |
+| Vulnerabilidades shell | `shellcheck` | `shellcheck --severity=warning bin/*` |
+| Vulnerabilidades JS | `npm audit` | `npm --prefix s3-backup audit --omit=dev` |
+| Dependencias JS | `osv-scanner` | `osv-scanner scan -L s3-backup/package-lock.json` |
 | Análisis estático | `shellyzer` | solo archivos `*.sh` |
 
-Estas herramientas son para el agente y el entorno local; el CI no las ejecuta.
+Estas herramientas son para el agente y el entorno local. El CI solo ejecuta
+Shellyzer y OSV-Scanner.
 
 Verificación obligatoria antes de terminar:
 
@@ -90,6 +93,10 @@ tiene extensión. Para esos archivos la fuente de verdad es la CLI
   bloquea `start-backup` si la base no responde.
 - `s3-backup/package-lock.json` fija `aws-sdk` v2 y `moment`; no lo regeneres sin
   probar la limpieza.
+- `s3-backup/osv-scanner.toml` ignora 3 vulnerabilidades conocidas hasta
+  2027-01-31. No extiendas la fecha: la salida correcta es migrar `aws-sdk` v2 a
+  `@aws-sdk/client-s3` y actualizar `moment` a `2.31.0` (o reemplazarlo).
+- No uses `npm audit fix --force` en `s3-backup`: propone bajar a `aws-sdk@1.18.0`.
 
 ## Agentes
 
@@ -103,7 +110,9 @@ de mergear cambios que toquen credenciales, borrado o CI.
 ## CI/CD
 
 - `.github/workflows/quality.yml`: ejecuta Shellyzer y el límite de 200 líneas.
-- `.github/workflows/ci.yml`: ejecuta el workflow anterior en pull requests.
+- `.github/workflows/js-security.yml`: ejecuta OSV-Scanner sobre
+  `s3-backup/package-lock.json`.
+- `.github/workflows/ci.yml`: ejecuta ambos workflows en pull requests.
 - `.github/workflows/cd.yml`: solo en push a `main` y `feature/cd`; exige
-  Shellyzer, publica la imagen en Docker Hub y recrea `backup-servisan` por SSH
-  usando los secretos de GitHub.
+  Shellyzer y OSV-Scanner, publica la imagen en Docker Hub y recrea
+  `backup-servisan` por SSH usando los secretos de GitHub.

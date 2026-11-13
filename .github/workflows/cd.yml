@@ -9,8 +9,11 @@ jobs:
   quality:
     uses: ./.github/workflows/quality.yml
 
+  js-security:
+    uses: ./.github/workflows/js-security.yml
+
   build:
-    needs: quality
+    needs: [quality, js-security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
