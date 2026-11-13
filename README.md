@@ -167,9 +167,17 @@ Las definiciones viven en `.opencode/agents/` y las reglas compartidas en
   límite de 200 líneas.
 - `.github/workflows/js-security.yml` ejecuta OSV-Scanner sobre
   `s3-backup/package-lock.json`.
-- `.github/workflows/cd.yml` corre en push a `main` y `feature/cd`: primero
-  exige Shellyzer y OSV-Scanner, luego construye y publica la imagen en Docker
-  Hub y recrea el contenedor remoto `backup-servisan` por SSH.
+- `.github/workflows/cd.yml` corre en push de tags `v*`: primero exige Shellyzer
+  y OSV-Scanner, luego construye y publica la imagen en Docker Hub con el tag de
+  git y `latest`, y recrea el contenedor remoto `backup-servisan` por SSH.
+  Mergear a `main` no despliega; el despliegue se dispara con el tag.
+
+Para publicar una versión:
+
+```bash
+git tag v1.2.0
+git push origin v1.2.0
+```
 
 No existe suite de tests. La verificación funcional es construir la imagen y
 correr un ciclo contra el MySQL de Compose.
@@ -178,6 +186,6 @@ correr un ciclo contra el MySQL de Compose.
 
 Cuando cambie el comportamiento del producto (variables de entorno, formato de
 archivo, retención, flujo de subida o despliegue), actualiza este README y
-`AGENTS.md` en el mismo PR. Las imágenes se publican con tag `latest` y el SHA
-del commit, por lo que el README es la referencia vigente para operar cualquier
-versión desplegada.
+`AGENTS.md` en el mismo PR. Las imágenes se publican con el tag de git (por
+ejemplo `v1.2.0`) y `latest`, por lo que el README es la referencia vigente para
+operar cualquier versión desplegada.
