@@ -113,6 +113,7 @@ de mergear cambios que toquen credenciales, borrado o CI.
 - `.github/workflows/js-security.yml`: ejecuta OSV-Scanner sobre
   `s3-backup/package-lock.json`.
 - `.github/workflows/ci.yml`: ejecuta ambos workflows en pull requests.
-- `.github/workflows/cd.yml`: solo en push a `main` y `feature/cd`; exige
-  Shellyzer y OSV-Scanner, publica la imagen en Docker Hub y recrea
-  `backup-servisan` por SSH usando los secretos de GitHub.
+- `.github/workflows/cd.yml`: solo en push de tags `v*`; exige Shellyzer y
+  OSV-Scanner, publica la imagen en Docker Hub con el tag de git y `latest`, y
+  recrea `backup-servisan` por SSH usando los secretos de GitHub. No despliega
+  desde `main`: hay que crear y subir el tag.
