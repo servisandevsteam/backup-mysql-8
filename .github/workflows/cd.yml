@@ -64,4 +64,4 @@ jobs:
               -e AWS_DEFAULT_REGION="${{ secrets.AWS_DEFAULT_REGION }}" \
               -e AWS_BUCKET="${{ secrets.AWS_BUCKET }}" \
               -e AWS_PREFIX="${{ secrets.AWS_PREFIX }}" \
-              -e EXPIRATE_IN_MONTHS="${{ secrets.EXPIRATE_IN_MONTHS }}" \
+              -e EXPIRATE_IN_MONTHS="${{ secrets.EXPIRATE_IN_MONTHS }}"
