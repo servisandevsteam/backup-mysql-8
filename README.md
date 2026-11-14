@@ -175,12 +175,10 @@ Las definiciones viven en `.opencode/agents/` y las reglas compartidas en
   git y `latest`, y recrea el contenedor remoto `backup-servisan` por SSH.
   Mergear a `main` no despliega; el despliegue se dispara con el tag.
 
-Para publicar una versión:
-
-```bash
-git tag v1.2.0
-git push origin v1.2.0
-```
+Cada despliegue usa una versión `vX.Y.Z` (componentes de 0 a 99, con acarreo
+`v0.0.99` -> `v0.1.0`) registrada en `VERSION`. El bump entra por PR en un branch
+`release/vX.Y.Z`; el tag se crea después del merge y es lo que dispara el CD.
+El procedimiento completo está en `.opencode/skills/versioning/SKILL.md`.
 
 No existe suite de tests. La verificación funcional es construir la imagen y
 correr un ciclo contra el MySQL de Compose.
