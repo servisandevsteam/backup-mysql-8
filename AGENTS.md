@@ -108,6 +108,20 @@ tiene extensión. Para esos archivos la fuente de verdad es la CLI
 Definiciones en `.opencode/agents/`. Delega auditoría al `devops-auditor` antes
 de mergear cambios que toquen credenciales, borrado o CI.
 
+## Versionado y despliegue
+
+- Cada despliegue es un tag `vX.Y.Z` con componentes de 0 a 99. Se incrementa
+  el patch; al pasar de 99 se reinicia y se acarrea (`v0.0.99` -> `v0.1.0`,
+  `v0.99.99` -> `v1.0.0`). `v99.99.99` está agotado: pide una decisión.
+- `VERSION` guarda la versión vigente sin `v` y debe coincidir con el último
+  tag. Sin tags previos, el primer despliegue es `v0.0.1`.
+- Calcula la siguiente versión con
+  `.opencode/skills/versioning/scripts/next-version.sh`.
+- El procedimiento completo vive en `.opencode/skills/versioning/SKILL.md`
+  (skill `versioning`). No hagas push directo a `main`: crea un branch
+  `release/vX.Y.Z`, actualiza `VERSION`, abre un PR con `gh` y crea el tag
+  solo después del merge. El push del tag dispara `cd.yml`.
+
 ## CI/CD
 
 - `.github/workflows/quality.yml`: ejecuta Shellyzer y el límite de 200 líneas.
