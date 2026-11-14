@@ -5,8 +5,8 @@ backups antiguos. No hay suite de tests ni linter integrado en la imagen.
 
 ## Configuración y comandos
 
-- `cp .env.example .env` y completar valores; `.env.example` es la base. Agrega
-  `AWS_PREFIX` a mano si vas a usar limpieza.
+- `cp .env.example .env` y completar valores; `.env.example` es la base.
+  `AWS_PREFIX` debe tener valor si vas a usar limpieza.
 - `docker compose up -d --build` — levanta `backup-script` (con `sleep infinity`)
   y un `mysql-server:8.4` local para pruebas.
 - `docker compose exec backup-script start-backup` — corre el ciclo completo en
@@ -21,9 +21,10 @@ backups antiguos. No hay suite de tests ni linter integrado en la imagen.
 - `bin/*` son scripts bash sin extensión, en `PATH`, sin argumentos: toda la
   configuración entra por variables de entorno. Si agregas uno, déjalo
   ejecutable y llámalo por nombre.
-- `bin/start-backup` hardcodea `/app/backups` y ejecuta: check DB → dump
-  `<YYYYMMDDHHMMSS>.sql` → zip → borrar `.sql` → upload → limpieza S3 →
-  `sleep "$TIME_SLEEP"`.
+- `bin/start-backup` hardcodea `/app/backups`, calcula la próxima hora de
+  `BACKUP_SCHEDULE` en la zona `BACKUP_TIMEZONE` (opcional), duerme hasta ella y
+  ejecuta: check DB → dump `<YYYYMMDDHHMMSS>.sql` → zip → borrar `.sql` →
+  upload → limpieza S3. Si el horario no tiene horas válidas termina con error.
 - `bin/upload-backup` se invoca como `pathfile=$PATH_SAVE upload-backup`.
 - `bin/update-s3-bucket` hace `cd /app/s3-backup` y `npm install` si falta
   `node_modules`; `s3-backup/update-s3-bucket` es el script Node (aws-sdk v2 +

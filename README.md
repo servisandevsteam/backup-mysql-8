@@ -12,7 +12,8 @@ check-connection -> mysqldump -> zip -> upload-backup -> update-s3-bucket
    espera el puerto                                   borra backups antiguos
 ```
 
-El ciclo se repite cada `TIME_SLEEP` segundos y no termina por sí solo.
+El ciclo se repite según `BACKUP_SCHEDULE` (por ejemplo, `"10:00 20:00"` para
+dos backups diarios) y no termina por sí solo.
 
 ## Componentes
 
@@ -57,7 +58,8 @@ Completa `.env` antes de levantar el stack:
 | `DB_USERNAME` / `DB_PASSWORD` | Credenciales de MySQL. |
 | `DB_HOSTNAME` | Host de MySQL; en Compose es `mysql-server`. |
 | `DB_PORT` | Puerto de MySQL, normalmente `3306`. |
-| `TIME_SLEEP` | Segundos entre ciclos de backup. |
+| `BACKUP_SCHEDULE` | Horarios diarios (24h, separados por espacios) en que corre el backup, por ejemplo `"10:00 20:00"`; por defecto `"10:00 20:00"`. |
+| `BACKUP_TIMEZONE` | Zona horaria opcional para el calendario, por ejemplo `UTC` o `US/Eastern`; por defecto la del contenedor. |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | Credenciales de AWS. |
 | `AWS_DEFAULT_REGION` | Región de S3. |
 | `AWS_BUCKET` | Bucket destino. |
@@ -78,8 +80,9 @@ docker compose exec backup-script update-s3-bucket # probar solo la limpieza
 
 `docker-compose.yml` reemplaza el `CMD` de la imagen por `sleep infinity`, por
 eso el respaldo no arranca solo: hay que ejecutar `start-backup` dentro del
-contenedor. El bind mount `./:/app/` hace que los dumps aparezcan en
-`backups/` del host.
+contenedor. Al arrancar, `start-backup` espera la próxima hora de
+`BACKUP_SCHEDULE`; no hace un backup inmediato. El bind mount `./:/app/` hace
+que los dumps aparezcan en `backups/` del host.
 
 Para reinicializar la base de desarrollo y volver a ejecutar los scripts de
 `database/`:
